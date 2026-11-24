@@ -70,15 +70,6 @@ class MainActivity : Activity() {
             },
         )
 
-        App.lastCrash(this)?.let { trace ->
-            android.app.AlertDialog.Builder(this)
-                .setTitle("Crash terakhir — screenshot lalu kirim")
-                .setMessage(trace)
-                .setPositiveButton("Tutup", null)
-                .show()
-            runCatching { java.io.File(filesDir, "crash.txt").delete() }
-        }
-
         setStatus("Mencari koneksi…")
         io.execute { connectInternal(silent = true) }
     }
