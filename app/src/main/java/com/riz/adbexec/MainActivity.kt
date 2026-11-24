@@ -238,6 +238,8 @@ class MainActivity : Activity() {
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 
+    private fun dp(v: Float) = v * resources.displayMetrics.density
+
     // --- ADB ---
 
     private fun mgr(): AbsAdbConnectionManager =
