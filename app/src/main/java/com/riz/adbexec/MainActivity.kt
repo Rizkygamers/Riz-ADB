@@ -56,7 +56,28 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefs = getSharedPreferences("adb", Context.MODE_PRIVATE)
-        setContentView(buildUi())
+        setContentView(
+            runCatching { buildUi() }.getOrElse { error ->
+                android.util.Log.e("RizAdb", "UI gagal dibuat", error)
+                TextView(this).apply {
+                    text = android.util.Log.getStackTraceString(error)
+                    setTextIsSelectable(true)
+                    textSize = 10f
+                    setTextColor(0xFFFFFFFF.toInt())
+                    setBackgroundColor(0xFF1A0B12.toInt())
+                    setPadding(dp(16), dp(64), dp(16), dp(16))
+                }
+            },
+        )
+
+        App.lastCrash(this)?.let { trace ->
+            android.app.AlertDialog.Builder(this)
+                .setTitle("Crash terakhir — screenshot lalu kirim")
+                .setMessage(trace)
+                .setPositiveButton("Tutup", null)
+                .show()
+            runCatching { java.io.File(filesDir, "crash.txt").delete() }
+        }
 
         setStatus("Mencari koneksi…")
         io.execute { connectInternal(silent = true) }
@@ -412,6 +433,7 @@ class MainActivity : Activity() {
 
     private fun setStatus(text: String) {
         main.post {
+            if (!::statusView.isInitialized) return@post
             statusView.text = text
             statusView.setTextColor(DANGER.takeIf { text.contains("gagal", true) } ?: TEXT)
         }
@@ -419,6 +441,7 @@ class MainActivity : Activity() {
 
     private fun append(text: String) {
         main.post {
+            if (!::outputView.isInitialized) return@post
             log.append(text)
             if (log.length > 200_000) log.delete(0, log.length - 200_000)
             outputView.text = log.toString()
