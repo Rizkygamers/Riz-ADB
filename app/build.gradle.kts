@@ -11,8 +11,8 @@ android {
         applicationId = "com.riz.adbexec"
         minSdk = 30
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.3-diag"
+        versionCode = 5
+        versionName = "1.4-trace"
     }
 
     compileOptions {
